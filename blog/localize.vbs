@@ -12,8 +12,8 @@ reg_link = "<link href=""/"
 reg_link_g = "<link href="""
 reg_script = "<script src=""/"
 reg_script_g = "<script src="""
-reg_href = "<a href=""/"
-reg_href_g = "<a href="""
+'reg_href = "<a href=""/"
+'reg_href_g = "<a href="""
 
 'File system object for file manipulation'
 Set objFSO = CreateObject("Scripting.FileSystemObject")
@@ -64,22 +64,26 @@ Sub localize(file, level)
     Set colMatches = regEx.Execute(newFile)   ' Execute search.
 
     For Each objMatch In colMatches   ' Iterate Matches collection.
-    	myMatch = objMatch.SubMatches(0)
+    	fullMatch = objMatch.Value
+    	subMatch = objMatch.SubMatches(0)
 
-    	replaceMatch = levelPaths(level) & Mid(myMatch,2)
-    	'Wscript.echo "Main: " & objMatch.Value
-    	'Wscript.echo "subMatch: " & myMatch
+    	replaceSubMatch = levelPaths(level) & Mid(subMatch,2)
+    	replaceMatch = replace(fullMatch,subMatch,replaceSubMatch)
+
+    	'Wscript.echo "fullMatch: " & fullMatch
+    	'Wscript.echo "subMatch: " & subMatch
+    	'Wscript.echo "replacesubMatch: " & replaceSubMatch
     	'Wscript.echo "New Replace: " & replaceMatch
     	'Wscript.Echo right(myMatch,2)
     	if right(replaceMatch,2) = "/""" then 'check if there is an ending /, if not then add it with index.html'
 			'Wscript.echo "Has /"
-			newFile = Replace(newFile,myMatch, left(replaceMatch,len(replaceMatch)-1) & "index.html""")
-    	elseif len(myMatch) <= 1 then 
-    		'Wscript.echo "homepage"
-    		'newFile = Replace(newFile,myMatch, left(replaceMatch,len(replaceMatch)-1) & "/index.html""")
+			newFile = Replace(newFile,fullMatch, left(replaceMatch,len(replaceMatch)-1) & "index.html""")
+    	elseif len(subMatch) <= 1 then 
+    		replaceMatch = Replace(fullMatch,"href=""""","href=""" & levelPaths(level) & "index.html""")
+    		newFile = Replace(newFile,fullMatch,replaceMatch)
     	else
     		'Wscript.echo "Has no /"
-    		newFile = Replace(newFile,myMatch, left(replaceMatch,len(replaceMatch)-1) & "/index.html""")
+    		newFile = Replace(newFile,fullMatch, left(replaceMatch,len(replaceMatch)-1) & "/index.html""")
     	end if
   		
       'RetStr = RetStr & "Match found at position "
@@ -96,7 +100,7 @@ Sub localize(file, level)
 end Sub
 
 Function isHTML (file)
-	if right(file,4) = "html" AND InStr(file,"_tmp") = 0 then
+	if right(file,4) = "html" then
 		isHTML = True
 		'Wscript.Echo "true"
 	else 
