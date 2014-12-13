@@ -72,10 +72,13 @@ Sub localize(file, level)
     	'Wscript.echo "New Replace: " & replaceMatch
     	'Wscript.Echo right(myMatch,2)
     	if right(replaceMatch,2) = "/""" then 'check if there is an ending /, if not then add it with index.html'
+			'Wscript.echo "Has /"
 			newFile = Replace(newFile,myMatch, left(replaceMatch,len(replaceMatch)-1) & "index.html""")
-    	elseif len(replaceMatch) = 0 then 
+    	elseif len(myMatch) <= 1 then 
+    		'Wscript.echo "homepage"
     		'newFile = Replace(newFile,myMatch, left(replaceMatch,len(replaceMatch)-1) & "/index.html""")
     	else
+    		'Wscript.echo "Has no /"
     		newFile = Replace(newFile,myMatch, left(replaceMatch,len(replaceMatch)-1) & "/index.html""")
     	end if
   		
