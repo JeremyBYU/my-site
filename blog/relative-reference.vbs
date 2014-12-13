@@ -1,7 +1,7 @@
 Const ForReading = 1, ForWriting = 2, ForAppending = 8
 
 pub_dir = "public"
-levelPaths = Array("","../","../../","../../../")
+levelPaths = Array("","../","../../","../../../") '4 level for relative reference'
 
 'Command line argument for websitre url'
 if WScript.Arguments.Count = 0 then
@@ -12,9 +12,7 @@ end if
 
 'File system object for file manipulation'
 Set objFSO = CreateObject("Scripting.FileSystemObject")
-
 objStartFolder =  objFSO.GetAbsolutePathName(".") & "/" & pub_dir
-
 
 ShowSubfolders objFSO.GetFolder(objStartFolder), 0 'Start off in the public directory, level 0'
 
@@ -39,7 +37,6 @@ Sub localize(file, level)
 
 	newFile = myFile.ReadAll 'read the html file and store as stirng'
 	myFile.Close 'close the file'
-
 
 	'THe following uses regular expressions to find a match for links to other posts (<a href)'
 	Dim regEx 'Regular Expression object'
@@ -70,15 +67,12 @@ Sub localize(file, level)
   'Take care of home page references'
   bad_index = "href=""" & badPath
   good_index = "href=""" & levelPaths(level) & "index.html"
-  newFile = replace(newFile,left(bad_index,len(bad_index)-1),good_index)
-  
+  newFile = replace(newFile,left(bad_index,len(bad_index)-1),good_index)  
 
 	set myFile = objFSO.OpenTextFile(file.Path,ForWriting,True)	
 	myFile.Write newFile 'write the html file
 	myFile.Close
-
 end Sub
-
 Function isHTML (file)
 	if right(file,4) = "html" then
 		isHTML = True
@@ -86,7 +80,6 @@ Function isHTML (file)
 		isHTML = false
 	end if
 End Function
-
 Function isFile(myString)
   Dim regEx, retVal
 
