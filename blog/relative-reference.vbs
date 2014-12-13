@@ -85,7 +85,7 @@ Function isFile(myString)
 
   ' Create regular expression.
   Set regEx = New RegExp
-  regEx.Pattern = ".*\.[a-zA-Z]{3,4}"
+  regEx.Pattern = ".*\.[a-zA-Z]{2,4}"
   regEx.IgnoreCase = False
 
   isFile = regEx.Test(myString)
