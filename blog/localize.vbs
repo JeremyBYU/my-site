@@ -6,7 +6,7 @@ levelPaths = Array("","../","../../","../../../")
 '3 Groups of strings to search for relative path references
 '<link> Tags -- This includes css Files
 '<script> Tags -- This include .js'
-'<a href=..>' - This includes link to other posts
+'<a href=..>' - This includes link to other posts 
 ' THe _g represents the good link I want it to replace it with (deprecates last '/' '
 reg_link = "<link href=""/"
 reg_link_g = "<link href="""
@@ -21,7 +21,7 @@ Set objFSO = CreateObject("Scripting.FileSystemObject")
 objStartFolder =  objFSO.GetAbsolutePathName(".") & "/" & pub_dir
 
 
-ShowSubfolders objFSO.GetFolder(objStartFolder), 0
+ShowSubfolders objFSO.GetFolder(objStartFolder), 0 'Start off in the public directory, level 0'
 
 Sub ShowSubFolders(Folder, level)
 	Set colFiles = Folder.Files
@@ -33,7 +33,7 @@ Sub ShowSubFolders(Folder, level)
     For Each Subfolder in Folder.SubFolders
         'Wscript.Echo Subfolder.Path
         Set objFolder = objFSO.GetFolder(Subfolder.Path)
-        ShowSubFolders Subfolder, level +1
+        ShowSubFolders Subfolder, level +1 'Recursive call, increment the level'
     Next
 End Sub
 
@@ -49,14 +49,13 @@ Sub localize(file, level)
 	newFile = Replace(newFile,reg_script,reg_script_g & levelPaths(level)) 'This provides relative reference for scripts'
 	'newFile = Replace(newFile,reg_href,reg_href_g & levelPaths(level)) 'This provies relative reference for links to other pages'
 
-	'THe following uses regular expressions to find a match for links to other posts'
+	'THe following uses regular expressions to find a match for links to other posts (<a href)'
 	Dim regEx 'Regular Expression object'
 	Dim colMatches 'will contain matches for links'
 
   ' Create regular expression.
   	Set regEx = New RegExp
   	regEx.Pattern = "<a.*?href=""((?!http).*?\/?"")" 'regular expression that capture href but excludeds http'
-  	'Problem catching the homepage'
   	regEx.IgnoreCase = True
   	regEx.global = true
 
@@ -64,25 +63,24 @@ Sub localize(file, level)
     Set colMatches = regEx.Execute(newFile)   ' Execute search.
 
     For Each objMatch In colMatches   ' Iterate Matches collection.
-    	fullMatch = objMatch.Value
-    	subMatch = objMatch.SubMatches(0)
+    	fullMatch = objMatch.Value 'This is the full match, includes the full anchor tag'
+    	subMatch = objMatch.SubMatches(0) 'This is the link inside of the anchor tag'
 
-    	replaceSubMatch = levelPaths(level) & Mid(subMatch,2)
-    	replaceMatch = replace(fullMatch,subMatch,replaceSubMatch)
+    	replaceSubMatch = levelPaths(level) & Mid(subMatch,2) 'adds relative refrence to the link inside'
+    	replaceMatch = replace(fullMatch,subMatch,replaceSubMatch) 'puts relative reference inside the anchortag'
 
     	'Wscript.echo "fullMatch: " & fullMatch
     	'Wscript.echo "subMatch: " & subMatch
     	'Wscript.echo "replacesubMatch: " & replaceSubMatch
     	'Wscript.echo "New Replace: " & replaceMatch
     	'Wscript.Echo right(myMatch,2)
+    	'If all files are index.html instead of 'slug'.html then you have to manually add the index.html reference
     	if right(replaceMatch,2) = "/""" then 'check if there is an ending /, if not then add it with index.html'
-			'Wscript.echo "Has /"
 			newFile = Replace(newFile,fullMatch, left(replaceMatch,len(replaceMatch)-1) & "index.html""")
-    	elseif len(subMatch) <= 1 then 
+    	elseif len(subMatch) <= 1 then 'This is only true for the hompage, it captures the link that is empty'
     		replaceMatch = Replace(fullMatch,"href=""""","href=""" & levelPaths(level) & "index.html""")
     		newFile = Replace(newFile,fullMatch,replaceMatch)
-    	else
-    		'Wscript.echo "Has no /"
+    	else 'There is no ending / so you must add it here'    		
     		newFile = Replace(newFile,fullMatch, left(replaceMatch,len(replaceMatch)-1) & "/index.html""")
     	end if
   		
